@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Daily Objectives Manager",
-  "version": "1.0",
-  "description": "Log your top 5 daily objectives and view past objectives.",
-  "permissions": ["storage", "alarms"],
+  "name": "Daily Objectives Tracker",
+  "version": "1.1",
+  "description": "Track your top 5 daily objectives and view past objectives.",
+  "permissions": ["storage"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -12,10 +12,10 @@
       "128": "icon.png"
     }
   },
-  "background": {
-    "service_worker": "background.js"
-  },
-  "chrome_url_overrides": {
-    "newtab": "history.html"
-  }
+  "web_accessible_resources": [
+    {
+      "resources": ["history.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

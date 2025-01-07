@@ -1,38 +1,42 @@
-async function loadHistory() {
-  const storage = await chrome.storage.local.get("dailyObjectives");
-  const dailyObjectives = storage.dailyObjectives || {};
-
-  const historyDiv = document.getElementById("history");
-  historyDiv.innerHTML = "";
-
-  for (const [date, objectives] of Object.entries(dailyObjectives)) {
-    const dayEntry = document.createElement("div");
-    dayEntry.className = "day-entry";
-
-    const dateTitle = document.createElement("h4");
-    dateTitle.textContent = date;
-
-    const objectivesList = document.createElement("ul");
-    objectives.forEach((obj) => {
-      const listItem = document.createElement("li");
-      listItem.textContent = obj;
-      objectivesList.appendChild(listItem);
+document.addEventListener('DOMContentLoaded', () => {
+  const backButton = document.getElementById('back-button');
+  if (backButton) {
+    backButton.addEventListener('click', () => {
+      window.close();
     });
-
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "Delete";
-    deleteBtn.addEventListener("click", async () => {
-      delete dailyObjectives[date];
-      await chrome.storage.local.set({ dailyObjectives });
-      loadHistory();
-    });
-
-    dayEntry.appendChild(dateTitle);
-    dayEntry.appendChild(objectivesList);
-    dayEntry.appendChild(deleteBtn);
-
-    historyDiv.appendChild(dayEntry);
   }
-}
 
-document.addEventListener("DOMContentLoaded", loadHistory);
+  async function loadHistory() {
+    const storage = await chrome.storage.local.get(['objectives']);
+    const objectives = storage.objectives || {};
+
+    const historyList = document.getElementById('history-list');
+    if (!historyList) {
+      console.error('History list element not found.');
+      return;
+    }
+    historyList.innerHTML = '';
+
+    for (const [date, objs] of Object.entries(objectives)) {
+      // Handle non-array data gracefully
+      if (!Array.isArray(objs)) {
+        console.warn(`Skipping invalid data format for date ${date}:`, objs);
+        continue;
+      }
+
+      const listItem = document.createElement('li');
+      listItem.innerHTML = `<strong>${date}</strong><ul>${objs.map(obj => `<li>${obj}</li>`).join('')}</ul>`;
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = 'Delete';
+      deleteButton.addEventListener('click', async () => {
+        delete objectives[date];
+        await chrome.storage.local.set({ objectives });
+        loadHistory();
+      });
+      listItem.appendChild(deleteButton);
+      historyList.appendChild(listItem);
+    }
+  }
+
+  loadHistory();
+});

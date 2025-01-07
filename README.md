@@ -26,4 +26,4 @@ Do not allow duplicate daily entries. Only allow one daily submission of objecti
 
 Allow users to delete past days, with their respective objectives.
 
-Display past objectives in a tab that can be opened by clicking a button via the popup.
+Display past objectives in a tab - history.html - that can be opened by clicking a button via the popup.

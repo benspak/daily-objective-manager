@@ -1,95 +1,32 @@
-const objectivesForm = document.getElementById('objectives-form');
-const objectivesInput = document.getElementById('objectives');
-const viewPastButton = document.getElementById('view-past');
-const pastObjectivesDiv = document.getElementById('past-objectives');
-const pastObjectivesList = document.getElementById('past-objectives-list');
-const closePastButton = document.getElementById('close-past');
+document.getElementById('submit-button').addEventListener('click', async (e) => {
+  e.preventDefault();
 
-const STORAGE_KEY = 'dailyObjectives';
+  const objectivesInput = document.getElementById('objectives-input').value.trim();
+  if (!objectivesInput) return alert('Please enter at least one objective.');
 
-function saveObjectives(objectives) {
-    const today = new Date().toISOString().split('T')[0];
+  const objectives = objectivesInput.split('\n').map(obj => obj.trim()).filter(obj => obj);
 
-    chrome.storage.local.get(STORAGE_KEY, (data) => {
-        const allObjectives = Array.isArray(data[STORAGE_KEY]) ? data[STORAGE_KEY] : [];
+  if (objectives.length !== 5) {
+    return alert('Please enter exactly 5 objectives.');
+  }
 
-        if (allObjectives.some(entry => entry.date === today)) {
-            alert('You have already submitted objectives for today.');
-            return;
-        }
+  const today = new Date().toISOString().split('T')[0];
+  const storage = await chrome.storage.local.get(['objectives']);
 
-        allObjectives.push({
-            date: today,
-            objectives
-        });
+  const updatedObjectives = storage.objectives || {};
 
-        chrome.storage.local.set({ [STORAGE_KEY]: allObjectives }, () => {
-            alert('Objectives saved!');
-            objectivesInput.value = '';
-        });
-    });
-}
+  // Save objectives only as an array
+  if (Array.isArray(updatedObjectives[today])) {
+    return alert('Objectives for today are already submitted.');
+  }
 
-function loadPastObjectives() {
-    chrome.storage.local.get(STORAGE_KEY, (data) => {
-        const allObjectives = Array.isArray(data[STORAGE_KEY]) ? data[STORAGE_KEY] : []; // Ensure it's an array
+  updatedObjectives[today] = objectives; // Ensure it's an array
+  await chrome.storage.local.set({ objectives: updatedObjectives });
 
-        pastObjectivesList.innerHTML = '';
-
-        allObjectives.forEach(entry => {
-            const li = document.createElement('li');
-            li.textContent = entry.date;
-            const ul = document.createElement('ul');
-            entry.objectives.forEach(obj => {
-                const objLi = document.createElement('li');
-                objLi.textContent = obj;
-                ul.appendChild(objLi);
-            });
-
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Delete';
-            deleteButton.onclick = () => deleteObjectives(entry.date);
-
-            li.appendChild(ul);
-            li.appendChild(deleteButton);
-            pastObjectivesList.appendChild(li);
-        });
-    });
-}
-
-
-function deleteObjectives(date) {
-    chrome.storage.local.get(STORAGE_KEY, (data) => {
-        const allObjectives = data[STORAGE_KEY] || [];
-        const filteredObjectives = allObjectives.filter(entry => entry.date !== date);
-
-        chrome.storage.local.set({ [STORAGE_KEY]: filteredObjectives }, () => {
-            loadPastObjectives();
-        });
-    });
-}
-
-objectivesForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-
-    const objectives = objectivesInput.value
-        .split('\n')
-        .map(obj => obj.trim())
-        .filter(obj => obj);
-
-    if (objectives.length === 0 || objectives.length > 5) {
-        alert('Please enter up to 5 objectives.');
-        return;
-    }
-
-    saveObjectives(objectives);
+  alert('Objectives saved successfully!');
+  document.getElementById('objectives-input').value = '';
 });
 
-viewPastButton.addEventListener('click', () => {
-    loadPastObjectives();
-    pastObjectivesDiv.style.display = 'block';
-});
-
-closePastButton.addEventListener('click', () => {
-    pastObjectivesDiv.style.display = 'none';
+document.getElementById('history-button').addEventListener('click', () => {
+  window.open('history.html');
 });

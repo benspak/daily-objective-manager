@@ -1,34 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Daily Objectives</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 10px;
-        }
-        .objectives-form {
-            margin-bottom: 20px;
-        }
-        .past-objectives {
-            display: none;
-        }
-    </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Daily Objectives</h1>
-    <form id="objectives-form" class="objectives-form">
-        <label for="objectives">Enter your top 5 objectives for today:</label>
-        <textarea id="objectives" placeholder="Enter each objective on a new line" rows="6" cols="30"></textarea>
-        <button type="submit">Save Objectives</button>
-    </form>
-    <button id="view-past">View Past Objectives</button>
-    <div id="past-objectives" class="past-objectives">
-        <h2>Past Objectives</h2>
-        <ul id="past-objectives-list"></ul>
-        <button id="close-past">Close</button>
-    </div>
+  <h1>Daily Objectives</h1>
+  <form id="objectives-form">
+    <textarea id="objectives-input" placeholder="Enter your 5 objectives, separated by new lines" rows="6"></textarea>
+    <button id="submit-button">Submit</button>
+  </form>
+  <button id="history-button">View History</button>
+  <div id="error-message"></div>
+  <script src="popup.js"></script>
 </body>
-<script src="popup.js"></script>
 </html>
